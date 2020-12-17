@@ -69,3 +69,13 @@ func (p *Publisher) sendTopic(sub subscriber, topic topicFunc, v interface{}, wg
 	case <-time.After(p.timeout):
 	}
 }
+
+func (p *Publisher) Close() {
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	for sub := range p.subscribers {
+		delete(p.subscribers, sub)
+		close(sub)
+	}
+}
